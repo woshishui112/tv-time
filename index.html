@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>电视时间赚取器</title>
+    <title>超级电视时间赚取器</title>
     <style>
         :root { 
             --primary: #2c3e50; 
             --wolf: #8e44ad; 
             --fact: #2980b9; 
+            --logic: #e67e22; /* 新增逻辑关卡的颜色 */
             --bg: #f0f3f5; 
             --card: #ffffff; 
             --green: #2ecc71;
@@ -33,34 +34,36 @@
             align-items: center;
         }
         
-        .title-area h1 { margin: 0; font-size: 1.5rem; }
+        .title-area h1 { margin: 0; font-size: 1.4rem; }
         .title-area p { margin: 5px 0 0; opacity: 0.8; font-size: 0.9rem; }
         
         .score-box { text-align: right; }
-        .score-num { font-size: 2.5rem; font-weight: bold; color: var(--orange); line-height: 1; }
+        .score-num { font-size: 2.2rem; font-weight: bold; color: var(--orange); line-height: 1; }
         .score-label { font-size: 0.8rem; opacity: 0.8; }
 
         /* 导航 */
-        nav { display: flex; gap: 15px; margin-bottom: 20px; }
+        nav { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
         .nav-btn { 
-            padding: 12px 25px; 
+            padding: 10px 15px; 
             border: none; 
             background: white; 
-            border-radius: 30px; 
+            border-radius: 20px; 
             cursor: pointer; 
             font-weight: bold; 
             color: #bdc3c7; 
-            font-size: 1rem;
+            font-size: 0.9rem;
             transition: 0.2s;
             box-shadow: 0 3px 0 rgba(0,0,0,0.05);
         }
         .nav-btn.active { color: white; transform: translateY(2px); box-shadow: none; }
+        
         .nav-btn[data-tab="fact"].active { background: var(--fact); }
         .nav-btn[data-tab="wolf"].active { background: var(--wolf); }
+        .nav-btn[data-tab="logic"].active { background: var(--logic); } /* 新样式 */
         
         /* 完成标记 */
         .nav-btn.finished { opacity: 0.6; position: relative; }
-        .nav-btn.finished::after { content: '✔'; position: absolute; top: -5px; right: -5px; background: var(--green); color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; line-height: 20px; text-align: center; }
+        .nav-btn.finished::after { content: '✔'; position: absolute; top: -5px; right: -5px; background: var(--green); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; line-height: 18px; text-align: center; }
 
         /* 主卡片 */
         main { width: 100%; max-width: 600px; position: relative; }
@@ -75,12 +78,12 @@
         .progress-text { text-align: right; font-size: 0.8rem; color: #7f8c8d; margin-bottom: 5px; font-weight: bold; }
 
         /* 题目 */
-        .q-text { font-size: 1.4rem; font-weight: 700; line-height: 1.5; margin-bottom: 30px; min-height: 70px; color: #34495e; }
+        .q-text { font-size: 1.3rem; font-weight: 700; line-height: 1.5; margin-bottom: 25px; min-height: 60px; color: #34495e; }
         
         /* 按钮通用 */
-        .options-grid { display: grid; gap: 15px; }
+        .options-grid { display: grid; gap: 12px; }
         .btn-opt { 
-            padding: 18px; 
+            padding: 15px; 
             border: 2px solid #ecf0f1; 
             background: white; 
             border-radius: 12px; 
@@ -95,22 +98,22 @@
         
         /* 事实观点大按钮 */
         .fact-btns { display: flex; gap: 15px; }
-        .fact-btns button { flex: 1; padding: 25px; font-size: 1.3rem; border: none; border-radius: 15px; cursor: pointer; color: white; font-weight: bold; transition: transform 0.1s; }
+        .fact-btns button { flex: 1; padding: 20px; font-size: 1.2rem; border: none; border-radius: 15px; cursor: pointer; color: white; font-weight: bold; transition: transform 0.1s; }
         .fact-btns button:active { transform: scale(0.98); }
-        .btn-f { background: var(--fact); box-shadow: 0 5px 0 #1f6391; }
-        .btn-o { background: #e67e22; box-shadow: 0 5px 0 #ca6f1e; }
+        .btn-f { background: var(--fact); box-shadow: 0 4px 0 #1f6391; }
+        .btn-o { background: #e67e22; box-shadow: 0 4px 0 #ca6f1e; }
 
         /* 反馈区 */
-        .feedback-box { margin-top: 25px; padding: 20px; border-radius: 12px; display: none; text-align: center; }
+        .feedback-box { margin-top: 25px; padding: 15px; border-radius: 12px; display: none; text-align: center; }
         .feedback-box.correct { background: #e8f8f5; border: 2px solid #a2d9ce; color: #16a085; }
         .feedback-box.wrong { background: #fdedec; border: 2px solid #fadbd8; color: #c0392b; }
-        .explain-text { font-size: 1rem; margin-top: 10px; text-align: left; background: rgba(255,255,255,0.7); padding: 10px; border-radius: 8px; }
+        .explain-text { font-size: 0.95rem; margin-top: 8px; text-align: left; background: rgba(255,255,255,0.7); padding: 8px; border-radius: 8px; }
 
         .next-btn { 
-            margin-top: 20px; width: 100%; padding: 16px; 
+            margin-top: 20px; width: 100%; padding: 15px; 
             background: var(--primary); color: white; 
             border: none; border-radius: 12px; 
-            cursor: pointer; font-size: 1.2rem; font-weight: bold;
+            cursor: pointer; font-size: 1.1rem; font-weight: bold;
             display: none; box-shadow: 0 4px 0 #1a252f;
         }
         .next-btn:active { transform: translateY(4px); box-shadow: none; }
@@ -124,6 +127,11 @@
         }
         .coupon-val { font-size: 4rem; font-weight: bold; color: var(--orange); margin: 10px 0; }
         .coupon-note { font-size: 1.1rem; color: #7f8c8d; margin-top: 10px; }
+        .bonus-tag { 
+            background: var(--red); color: white; padding: 5px 15px; 
+            border-radius: 20px; font-size: 0.9rem; display: inline-block; 
+            margin-bottom: 10px; font-weight: bold;
+        }
 
     </style>
 </head>
@@ -132,17 +140,18 @@
 <header>
     <div class="title-area">
         <h1>📺 电视时间赚取器</h1>
-        <p>快乐答题 · 轻松赚时间</p>
+        <p>答对越多，奖励越丰厚！</p>
     </div>
     <div class="score-box">
-        <div class="score-label">已赚时间</div>
-        <div><span class="score-num" id="global-score">0</span> <span style="font-size:1rem">分钟</span></div>
+        <div class="score-label">当前得分</div>
+        <div><span class="score-num" id="global-score">0</span> <span style="font-size:1rem">分</span></div>
     </div>
 </header>
 
 <nav>
-    <button class="nav-btn active" id="nav-fact" onclick="switchTab('fact')">1. 简单热身 (10题)</button>
-    <button class="nav-btn" id="nav-wolf" onclick="switchTab('wolf')">2. 狼人杀 (20题)</button>
+    <button class="nav-btn active" id="nav-fact" data-tab="fact" onclick="switchTab('fact')">1. 简单热身 (10题)</button>
+    <button class="nav-btn" id="nav-wolf" data-tab="wolf" onclick="switchTab('wolf')">2. 狼人杀 (20题)</button>
+    <button class="nav-btn" id="nav-logic" data-tab="logic" onclick="switchTab('logic')">3. 位置推理 (10题)</button>
 </nav>
 
 <main>
@@ -162,7 +171,7 @@
                 <button class="btn-o" onclick="checkAnswer('opinion')">📙 观点 (Opinion)</button>
             </div>
 
-            <!-- Wolf Buttons -->
+            <!-- Generic Options Buttons -->
             <div class="options-grid" id="opt-btns" style="display:none;"></div>
         </div>
 
@@ -178,59 +187,73 @@
 
     <!-- 最终兑换券 -->
     <div id="coupon-card" class="card coupon">
+        <div id="bonus-msg" class="bonus-tag" style="display:none;">🎉 触发超级奖励！</div>
         <h2 style="color:#2c3e50; margin:0;">✨ 电视时间兑换券 ✨</h2>
-        <p style="color:#bdc3c7;">VALID COUPON</p>
-        <div class="coupon-val"><span id="final-score">0</span> 分钟</div>
-        <div class="coupon-note">恭喜！请向家长出示此屏幕兑换。</div>
-        <p style="margin-top:30px; font-size:0.9rem; color:#bdc3c7;">挑战已结束，不可重来</p>
+        <div class="coupon-val"><span id="final-minutes">0</span> 分钟</div>
+        <div class="coupon-note">
+            原始得分: <span id="raw-score">0</span>/40<br>
+            <span id="reward-explain" style="font-size:0.9rem"></span>
+        </div>
+        <p style="margin-top:30px; font-size:0.9rem; color:#bdc3c7;">挑战已结束</p>
     </div>
 </main>
 
 <script>
     // ==========================================
-    // ⬇️ 题库区：新手快乐版 (简单有趣)
+    // ⬇️ 题库区 (全部更新)
     // ==========================================
 
-    // 1. 事实 vs 观点 (10题 - 贴近生活)
+    // 1. 事实 vs 观点 (10题)
     const factDB = [
-        { text: "一年有365天（平年）。", type: "fact", explain: "这是日历上的常识。" },
-        { text: "冰淇淋是世界上最好吃的零食。", type: "opinion", explain: "这是你的感觉，也许有人喜欢吃辣条。" },
-        { text: "中国的首都是北京。", type: "fact", explain: "地理事实。" },
-        { text: "玩游戏比写作业开心。", type: "opinion", explain: "虽然我也这么觉得，但这属于主观感受。" },
-        { text: "蜘蛛有8条腿。", type: "fact", explain: "生物课上学过的。" },
-        { text: "冬天太冷了，一点都不好玩。", type: "opinion", explain: "有人觉得冬天可以滑雪，很好玩。" },
-        { text: "鱼生活在水里。", type: "fact", explain: "自然规律。" },
-        { text: "西瓜是圆的。", type: "fact", explain: "客观形状。" },
-        { text: "我不喜欢吃青椒。", type: "opinion", explain: "这是你的口味偏好。" },
-        { text: "现在是21世纪。", type: "fact", explain: "历史时间。" }
+        { text: "太阳从东边升起。", type: "fact", explain: "这是自然规律。" },
+        { text: "蓝色是世界上最好看的颜色。", type: "opinion", explain: "这是个人喜好，有人喜欢红色。" },
+        { text: "兔子长着长耳朵。", type: "fact", explain: "这是兔子的特征。" },
+        { text: "数学作业太难了。", type: "opinion", explain: "对你来说可能难，对别人可能简单。" },
+        { text: "水煮开了会很烫。", type: "fact", explain: "这是物理常识，千万别摸！" },
+        { text: "冬天吃冰淇淋很舒服。", type: "opinion", explain: "有人觉得冷，有人觉得爽。" },
+        { text: "一年有四个季节。", type: "fact", explain: "春、夏、秋、冬。" },
+        { text: "这个游戏非常有趣。", type: "opinion", explain: "这是你的感觉。" },
+        { text: "鱼必须生活在水里。", type: "fact", explain: "离开水鱼活不了。" },
+        { text: "汉堡包比米饭好吃。", type: "opinion", explain: "这是口味问题。" }
     ];
 
-    // 2. 狼人杀 (20题 - 前10题送分，后10题简单逻辑)
-    // 规则：狼人=说谎，好人=真话
+    // 2. 狼人杀 (20题) - 简单规则：好人说真话，狼人说假话
     const wolfDB = [
-        // --- 第一阶段：一眼就能看穿的谎言 (送分题) ---
-        { text: "【第1题】A说：'大象会飞'。<br>请问A是好人还是狼人？", options: ["好人", "狼人"], correct: 1, explain: "哈哈，大象怎么会飞呢？A在胡说八道，肯定是狼人！" },
-        { text: "【第2题】A说：'糖是甜的'。<br>请问A是好人还是狼人？", options: ["好人", "狼人"], correct: 0, explain: "没错，糖就是甜的。A说了真话，是好人。" },
-        { text: "【第3题】A说：'太阳是冰块做的'。<br>请问A是好人还是狼人？", options: ["好人", "狼人"], correct: 1, explain: "太离谱了！太阳是火热的。A是狼人。" },
-        { text: "【第4题】A说：'小狗会汪汪叫'。<br>请问A是好人还是狼人？", options: ["好人", "狼人"], correct: 0, explain: "这是常识，A是诚实的好人。" },
-        { text: "【第5题】A说：'汽车是用方块轮子跑的'。<br>请问A是好人还是狼人？", options: ["好人", "狼人"], correct: 1, explain: "方块轮子跑不动呀，A在撒谎，是狼人。" },
-        { text: "【第6题】A说：'人可以不喝水活100年'。<br>请问A是好人还是狼人？", options: ["好人", "狼人"], correct: 1, explain: "吹牛！人不喝水几天就不行了。A是狼人。" },
-        { text: "【第7题】A说：'今天是星期八'。<br>请问A是好人还是狼人？", options: ["好人", "狼人"], correct: 1, explain: "根本就没有星期八，A是狼人。" },
-        { text: "【第8题】A说：'我是透明的，你看不见我'。<br>请问A是好人还是狼人？", options: ["好人", "狼人"], correct: 1, explain: "你能看见他对吧？他在撒谎。" },
-        { text: "【第9题】A说：'地球是圆的'。<br>请问A是好人还是狼人？", options: ["好人", "狼人"], correct: 0, explain: "这是真话，A是好人。" },
-        { text: "【第10题】A说：'火是烫的'。<br>请问A是好人还是狼人？", options: ["好人", "狼人"], correct: 0, explain: "真话，A是好人。" },
+        { text: "A说：'雪是黑色的'。<br>A是好人还是狼人？", options: ["好人", "狼人"], correct: 1, explain: "雪是白的，A在撒谎。" },
+        { text: "A说：'糖是甜的'。<br>A是好人还是狼人？", options: ["好人", "狼人"], correct: 0, explain: "A说了真话。" },
+        { text: "A说：'大象比蚂蚁小'。<br>A是好人还是狼人？", options: ["好人", "狼人"], correct: 1, explain: "胡说八道，大象很大。" },
+        { text: "A说：'鸟会在天上飞'。<br>A是好人还是狼人？", options: ["好人", "狼人"], correct: 0, explain: "事实如此。" },
+        { text: "A说：'石头可以当饭吃'。<br>A是好人还是狼人？", options: ["好人", "狼人"], correct: 1, explain: "吃石头会生病的，A是狼人。" },
+        { text: "A说：'火是非常烫的'。<br>A是好人还是狼人？", options: ["好人", "狼人"], correct: 0, explain: "真话。" },
+        { text: "A说：'我可以一口气喝干大海'。<br>A是好人还是狼人？", options: ["好人", "狼人"], correct: 1, explain: "他在吹牛，是狼人。" },
+        { text: "A说：'今天是星期八'。<br>A是好人还是狼人？", options: ["好人", "狼人"], correct: 1, explain: "没有星期八。" },
+        { text: "A说：'地球是圆的'。<br>A是好人还是狼人？", options: ["好人", "狼人"], correct: 0, explain: "真话。" },
+        { text: "A说：'1+1=3'。<br>A是好人还是狼人？", options: ["好人", "狼人"], correct: 1, explain: "算错啦，是狼人。" },
+        
+        { text: "A说：'我不吃东西能活一万年'。<br>A是好人还是狼人？", options: ["好人", "狼人"], correct: 1, explain: "太夸张了，肯定是假话。" },
+        { text: "A说：'小狗会汪汪叫'。<br>A是好人还是狼人？", options: ["好人", "狼人"], correct: 0, explain: "真话。" },
+        { text: "A说：'汽车是用正方形轮子跑的'。<br>A是好人还是狼人？", options: ["好人", "狼人"], correct: 1, explain: "正方形轮子跑不动。" },
+        { text: "A说：'夏天很热'。<br>A是好人还是狼人？", options: ["好人", "狼人"], correct: 0, explain: "真话。" },
+        { text: "A说：'我是透明人，你看不见我'。<br>A是好人还是狼人？", options: ["好人", "狼人"], correct: 1, explain: "你看得见他，他在骗人。" },
+        { text: "A说：'冰块是热的'。<br>A是好人还是狼人？", options: ["好人", "狼人"], correct: 1, explain: "冰块是冷的。" },
+        { text: "A说：'西瓜长在树上'。<br>A是好人还是狼人？", options: ["好人", "狼人"], correct: 1, explain: "西瓜长在地上。" },
+        { text: "A说：'晚上会有月亮'。<br>A是好人还是狼人？", options: ["好人", "狼人"], correct: 0, explain: "真话。" },
+        { text: "A说：'鱼在天上飞'。<br>A是好人还是狼人？", options: ["好人", "狼人"], correct: 1, explain: "鱼在水里游。" },
+        { text: "A说：'我们要讲卫生'。<br>A是好人还是狼人？", options: ["好人", "狼人"], correct: 0, explain: "这是正确的道理。" }
+    ];
 
-        // --- 第二阶段：稍微动一点脑筋 (简单逻辑) ---
-        { text: "【第11题】A说：'2+2=5'。<br>B说：'A算错了'。<br>请问B是好人还是狼人？", options: ["好人", "狼人"], correct: 0, explain: "A确实算错了，B指出了事实，所以B是好人。" },
-        { text: "【第12题】A说：'我是狼人'。<br>请问A到底是什么？", options: ["好人", "狼人", "这是骗人的题"], correct: 2, explain: "好人不能撒谎说自己是狼，狼人必须撒谎不能承认自己是狼。所以没人能说这句话！" },
-        { text: "【第13题】A说：'B是狼人'。<br>结果B真的是狼人。<br>请问A是好人还是狼人？", options: ["好人", "狼人"], correct: 0, explain: "A说对了事实（真话），说真话的就是好人。" },
-        { text: "【第14题】A说：'我们两个都是好人'。<br>可是场上明明有一只狼。<br>请问A是什么？", options: ["好人", "狼人"], correct: 1, explain: "既然有狼，就不可能'都是好人'。A在撒谎，A就是那只狼。" },
-        { text: "【第15题】A说：'我是好人'。<br>B说：'A在撒谎'。<br>请问谁是狼人？", options: ["A", "B", "无法判断"], correct: 2, explain: "如果A是好人，B就是狼；如果A是狼（撒谎说自己好），B就是好人。两人都有可能！" },
-        { text: "【第16题】A说：'所有的作业我都写完了'。<br>老师检查发现他没写。<br>请问A是什么？", options: ["好人", "狼人"], correct: 1, explain: "事实证明他在撒谎，撒谎的就是狼人。" },
-        { text: "【第17题】A说：'我有超能力'。<br>B说：'A在吹牛'。<br>请问B是什么？", options: ["好人", "狼人"], correct: 0, explain: "A肯定在吹牛（撒谎）。B说出了真相，B是好人。" },
-        { text: "【第18题】爸爸说：'妈妈是狼人'。<br>妈妈说：'爸爸是狼人'。<br>家里只有一只狼。<br>请问可能两句都是真话吗？", options: ["可能", "不可能"], correct: 1, explain: "如果都是真话，那家里就有两只狼了，与题目矛盾。所以不可能。" },
-        { text: "【第19题】A说：'1+1=2'。<br>B说：'A说得对'。<br>请问B是什么？", options: ["好人", "狼人"], correct: 0, explain: "A说的是真话。B赞同真话，B也是在说真话，所以B是好人。" },
-        { text: "【第20题】A说：'我们三个全是狼'。<br>请问A是什么？", options: ["好人", "狼人"], correct: 1, explain: "如果A是好人，他不能撒谎说自己是狼。所以A只能是狼（撒谎）。" }
+    // 3. 位置推理 (10题) - 简单空间逻辑
+    const logicDB = [
+        { text: "🍎在🍌的左边。<br>请问谁在右边？", options: ["🍎 苹果", "🍌 香蕉"], correct: 1, explain: "苹果在左，那香蕉就在右。" },
+        { text: "A 在 B 的前面。<br>B 在 C 的前面。<br>谁排在最后面？", options: ["A", "B", "C"], correct: 2, explain: "顺序是 A -> B -> C，所以C在最后。" },
+        { text: "小明住在 3楼。<br>小红住在小明的上面一层。<br>小红住几楼？", options: ["2楼", "4楼"], correct: 1, explain: "3楼的上面是4楼。" },
+        { text: "🔴红球 在 🔵蓝球 的左边。<br>🔵蓝球 在 🟢绿球 的左边。<br>谁在最中间？", options: ["🔴红球", "🔵蓝球", "🟢绿球"], correct: 1, explain: "顺序是：红 - 蓝 - 绿。" },
+        { text: "左手拿着✏️铅笔，右手拿着📏尺子。<br>请问尺子在哪边？", options: ["左边", "右边"], correct: 1, explain: "题目说了右手拿着尺子。" },
+        { text: "A 在 B 的左边。<br>C 在 A 的左边。<br>谁在最左边？", options: ["A", "B", "C"], correct: 2, explain: "顺序是：C - A - B。" },
+        { text: "大树的左边是房子，右边是小河。<br>房子在小河的哪边？", options: ["左边", "右边"], correct: 0, explain: "房子(左) - 树 - 小河(右)，所以房子在最左边。" },
+        { text: "小狗在小猫后面，小鸭在小狗后面。<br>谁跑第一？", options: ["小猫", "小狗", "小鸭"], correct: 0, explain: "小猫 -> 小狗 -> 小鸭。" },
+        { text: "书架分三层。<br>上层是漫画，下层是故事书。<br>字典在中间。<br>故事书在哪一层？", options: ["上层", "中层", "下层"], correct: 2, explain: "题目说了下层是故事书。" },
+        { text: "1号在2号左边，2号在3号左边。<br>请问3号在哪面？", options: ["最左面", "最右面", "中间"], correct: 1, explain: "1 - 2 - 3，所以3在最右面。" }
     ];
 
     // ==========================================
@@ -239,7 +262,8 @@
 
     let gameState = {
         fact: { idx: 0, list: factDB, finished: false },
-        wolf: { idx: 0, list: wolfDB, finished: false }
+        wolf: { idx: 0, list: wolfDB, finished: false },
+        logic: { idx: 0, list: logicDB, finished: false } // 新增 logic
     };
     let globalScore = 0;
     let currentTab = 'fact';
@@ -249,16 +273,16 @@
         
         // 更新导航按钮
         document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById(tab === 'fact' ? 'nav-fact' : 'nav-wolf').classList.add('active');
+        document.querySelector(`.nav-btn[data-tab="${tab}"]`).classList.add('active');
         
         // 隐藏不需要的界面
         document.getElementById('game-card').style.display = 'none';
         document.getElementById('done-card').style.display = 'none';
         document.getElementById('coupon-card').style.display = 'none';
 
-        // 判断是否全部通关
-        if (gameState.fact.finished && gameState.wolf.finished) {
-            showCoupon();
+        // 判断是否全部通关 (三个都完成)
+        if (gameState.fact.finished && gameState.wolf.finished && gameState.logic.finished) {
+            calculateFinalReward();
             return;
         }
 
@@ -320,12 +344,9 @@
         const q = state.list[state.idx];
         let isCorrect = false;
 
-        // 锁定与判断
+        // 逻辑判断
         if (currentTab === 'fact') {
-            isCorrect = (userIndex === (q.type === 'fact' ? 'fact' : 'opinion')); // 逻辑稍微修正下传参
-            // 实际上checkAnswer传的是字符串'fact'/'opinion'
             isCorrect = (userIndex === q.type); 
-
             Array.from(document.getElementById('fact-btns').children).forEach(b => {
                 b.disabled = true;
                 b.style.opacity = '0.6';
@@ -360,7 +381,7 @@
         const fb = document.getElementById('feedback');
         fb.style.display = 'block';
         fb.className = isCorrect ? 'feedback-box correct' : 'feedback-box wrong';
-        fb.innerHTML = `<strong>${isCorrect ? '🎉 答对了！火眼金睛！' : '😅 哎呀，答错了'}</strong><div class="explain-text">${q.explain}</div>`;
+        fb.innerHTML = `<strong>${isCorrect ? '🎉 答对了！' : '😅 答错了'}</strong><div class="explain-text">${q.explain}</div>`;
         
         document.getElementById('next-btn').style.display = 'block';
 
@@ -374,10 +395,10 @@
         
         if (state.idx >= state.list.length) {
             state.finished = true;
-            document.getElementById(currentTab === 'fact' ? 'nav-fact' : 'nav-wolf').classList.add('finished');
+            document.querySelector(`.nav-btn[data-tab="${currentTab}"]`).classList.add('finished');
             
-            if (gameState.fact.finished && gameState.wolf.finished) {
-                showCoupon();
+            if (gameState.fact.finished && gameState.wolf.finished && gameState.logic.finished) {
+                calculateFinalReward();
             } else {
                 document.getElementById('game-card').style.display = 'none';
                 document.getElementById('done-card').style.display = 'block';
@@ -387,11 +408,42 @@
         }
     }
 
-    function showCoupon() {
+    function calculateFinalReward() {
         document.getElementById('game-card').style.display = 'none';
         document.getElementById('done-card').style.display = 'none';
         document.getElementById('coupon-card').style.display = 'block';
-        document.getElementById('final-score').innerText = globalScore;
+
+        // 计算逻辑
+        const totalQ = 40;
+        const wrongCount = totalQ - globalScore;
+        let finalTime = globalScore;
+        let msg = "";
+        let showBonus = false;
+
+        // 规则：
+        // 1. 全对(40分) -> 60分钟 (奖励20分)
+        // 2. 错2道以内(>=38分) -> 得分+10分钟
+        // 3. 其他 -> 得分多少是多少
+
+        if (globalScore === 40) {
+            finalTime = 60;
+            msg = "完美通关！触发超级大奖：额外+20分钟！";
+            showBonus = true;
+        } else if (globalScore >= 38) {
+            finalTime = globalScore + 10;
+            msg = "表现优秀（错题≤2），触发鼓励奖：额外+10分钟！";
+            showBonus = true;
+        } else {
+            msg = "继续加油！下次争取拿全对奖励！";
+        }
+
+        document.getElementById('raw-score').innerText = globalScore;
+        document.getElementById('final-minutes').innerText = finalTime;
+        document.getElementById('reward-explain').innerText = msg;
+        
+        if (showBonus) {
+            document.getElementById('bonus-msg').style.display = 'inline-block';
+        }
     }
 
     // 初始化
@@ -401,4 +453,3 @@
 
 </body>
 </html>
-
